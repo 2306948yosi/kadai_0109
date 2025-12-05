@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>企業情報入力</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 500px;
+      margin: 30px auto;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>企業情報</h1>
+
+  <form id="entryForm">
+    <label>企業名</label>
+    <input type="text" id="company" required>
+
+    <label>選考ステータス</label>
+    <select id="status">
+      <option value="未エントリー">未エントリー</option>
+      <option value="ES提出済み">ES提出済み</option>
+      <option value="一次面接予定">一次面接予定</option>
+      <option value="一次面接通過">一次面接通過</option>
+      <option value="最終面接">最終面接</option>
+      <option value="選考終了">選考終了</option>
+    </select>
+
+    <label>日程</label>
+    <input type="date" id="date">
+
+    <label>メモ</label>
+    <textarea id="memo" rows="4"></textarea>
+
+    <button type="submit">登録</button>
+  </form>
+
+  <!-- ★ ここに追加：面接練習ページへ飛ぶボタン -->
+  <button id="practice-btn" type="button">🎤 面接練習ページへ</button>
+
+  <script>
+    const form = document.getElementById("entryForm");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const data = {
+        company: document.getElementById("company").value,
+        status: document.getElementById("status").value,
+        date: document.getElementById("date").value,
+        memo: document.getElementById("memo").value
+      };
+
+      console.log("送信データ:", data);
+
+      alert("登録しました！");
+      form.reset();
+    });
+
+    // ボタンが押されたら
+    document.getElementById("practice-btn").addEventListener("click", () => {
+      window.location.href = "mennsetu.html";
+    });
+  </script>
+
+</body>
+</html>
