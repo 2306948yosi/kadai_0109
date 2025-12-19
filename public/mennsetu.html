@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>面接練習</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 30px auto;
+    }
+    .box {
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+      white-space: pre-wrap;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      margin-top: 10px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>面接練習</h1>
+
+  <button id="start-btn">質問を表示</button>
+
+  <div id="question-box" class="box" style="display:none;"></div>
+
+  <div id="answer-box" class="box" style="display:none;">
+    <label><b>あなたの回答</b></label>
+    <textarea id="user-answer"></textarea>
+    <button id="show-model-btn">模範を見る</button>
+  </div>
+
+  <div id="model-box" class="box" style="display:none;"></div>
+
+  <script>
+    const questions = [
+      "自己紹介をお願いします。",
+      "学生時代に力を入れたことは？",
+      "あなたの強み・弱みは？",
+      "この業界を選んだ理由は？",
+      "弊社の志望動機を教えてください。",
+      "挫折経験と学んだことは？",
+      "5年後、10年後、どのようなポジションに就いていたいと思いますか？",
+      "入社後、どのようなことをしたいですか"
+    ];
+
+    const modelAnswers = {
+      "自己紹介をお願いします。": "武庫川女子大学、社会情報学部、社会情報学科…",
+      "学生時代に力を入れたことは？": "教務管理システムの改善に取り組み…",
+      "あなたの強み・弱みは？": "強みは課題発見力、弱みは慎重すぎる点です…",
+      "この業界を選んだ理由は？": "ITで人の不便を解消したいと考え…",
+      "弊社の志望動機を教えてください。": "社会インフラを支える点に魅力を感じ…",
+      "挫折経験と学んだことは？": "失敗から改善の重要性を学び…",
+      "5年後、10年後、どのようなポジションに就いていたいと思いますか？": "まずは技術力を磨き、将来は…",
+      "入社後、どのようなことをしたいですか": "利用者目線でのシステム改善に携わりたいです"
+    };
+
+    const startBtn = document.getElementById("start-btn");
+    const showModelBtn = document.getElementById("show-model-btn");
+
+    const qBox = document.getElementById("question-box");
+    const aBox = document.getElementById("answer-box");
+    const mBox = document.getElementById("model-box");
+    const userAnswer = document.getElementById("user-answer");
+
+    let currentQuestion = "";
+
+    // 質問表示
+    startBtn.addEventListener("click", () => {
+      const q = questions[Math.floor(Math.random() * questions.length)];
+      currentQuestion = q;
+
+      qBox.style.display = "block";
+      qBox.innerText = "【質問】\n" + q;
+
+      aBox.style.display = "block";
+      userAnswer.value = "";
+
+      mBox.style.display = "none";
+    });
+
+    // 模範を見る
+    showModelBtn.addEventListener("click", () => {
+      const model = modelAnswers[currentQuestion] ?? "この質問の模範回答は未登録です。";
+      mBox.style.display = "block";
+      mBox.innerHTML = "<b>▶ 模範回答</b><br><br>" + model;
+    });
+
+    saveBtn.addEventListener("click", async () => {
+  await fetch("/api/history", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      question: currentQuestion,
+      answer: answerArea.value
+    })
+  });
+});
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>企業情報入力</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 500px;
+      margin: 30px auto;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>企業情報</h1>
+
+  <form id="entryForm">
+    <label>企業名</label>
+    <input type="text" id="company" required>
+    <label>選考ステータス</label>
+    <select id="status">
+      <option value="会社説明会">会社説明会</option>
+      <option value="ES提出">ES提出</option>
+      <option value="一次面接">一次面接</option>
+      <option value="二次面接">二次面接</option>
+      <option value="最終面接">最終面接</option>
+      <option value="選考終了">選考終了</option>
+    </select>
+
+    <label>日程</label>
+    <input type="datetime-local" id="date">
+
+
+    <label>メモ</label>
+    <textarea id="memo" rows="4"></textarea>
+
+    <button type="submit">登録</button>
+  </form>
+
+  <button id="practice-btn" type="button">面接練習ページへ</button>
+
+  <button onclick="location.href='mohan.html'">
+  ES内容
+</button>
+
+  <button onclick="location.href='rireki.html'">
+  企業履歴
+</button>
+
+
+<script>
+const form = document.getElementById("entryForm");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  await fetch("/api/company", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      company: document.getElementById("company").value,
+      status: document.getElementById("status").value,
+      date: document.getElementById("date").value,
+      memo: document.getElementById("memo").value
+    })
+  });
+
+  alert("保存しました");
+  form.reset();
+});
+</script>

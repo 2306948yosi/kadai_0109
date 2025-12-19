@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>企業別 選考履歴</title>
+</head>
+<body>
+
+<h1>企業別 選考履歴</h1>
+<div id="companies"></div>
+
+<script>
+  fetch("/api/company")
+    .then(res => res.json())
+    .then(data => {
+      const area = document.getElementById("companies");
+
+      for (const company in data) {
+        const section = document.createElement("section");
+        section.innerHTML = `<h2>${company}</h2>`;
+
+        data[company].forEach(item => {
+          const div = document.createElement("div");
+          div.innerHTML = `
+            <p>
+              <b>${item.status}</b><br>
+              日程：${item.date || "未設定"}<br>
+              メモ：${item.memo || "-"}<br>
+              <small>${new Date(item.time).toLocaleString()}</small>
+            </p>
+            <hr>
+          `;
+          section.appendChild(div);
+        });
+
+        area.appendChild(section);
+      }
+    });
+</script>
+
+</body>
+</html>

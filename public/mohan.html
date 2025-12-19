@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>模範回答の編集</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 700px;
+      margin: 30px auto;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 20px;
+    }
+    select, textarea, button {
+      width: 100%;
+      margin-top: 5px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 160px;
+    }
+    .count {
+      text-align: right;
+      color: #555;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>模範回答 編集</h1>
+
+<label>質問を選択</label>
+<select id="question-select"></select>
+
+<label>模範回答</label>
+<textarea id="model-answer"></textarea>
+<div class="count">文字数：<span id="count">0</span></div>
+
+<button id="save-btn">保存</button>
+
+<script>
+  const questions = [
+    "自己紹介をお願いします。",
+    "学生時代に力を入れたことは？",
+    "あなたの強み・弱みは？",
+    "この業界を選んだ理由は？",
+    "弊社の志望動機を教えてください。",
+    "挫折経験と学んだことは？",
+    "5年後、10年後のキャリアプランは？",
+    "入社後、どのようなことをしたいですか"
+  ];
+
+  const select = document.getElementById("question-select");
+  const textarea = document.getElementById("model-answer");
+  const count = document.getElementById("count");
+
+  // 質問を select に追加
+  questions.forEach(q => {
+    const option = document.createElement("option");
+    option.value = q;
+    option.textContent = q;
+    select.appendChild(option);
+  });
+
+  // 既存の模範回答を読み込む
+  function loadAnswer() {
+    const all = JSON.parse(localStorage.getItem("modelAnswers") || "{}");
+    textarea.value = all[select.value] || "";
+    count.textContent = textarea.value.length;
+  }
+
+  // 文字数カウント
+  textarea.addEventListener("input", () => {
+    count.textContent = textarea.value.length;
+  });
+
+  // 質問変更時
+  select.addEventListener("change", loadAnswer);
+
+  // 保存
+  document.getElementById("save-btn").addEventListener("click", () => {
+    const all = JSON.parse(localStorage.getItem("modelAnswers") || "{}");
+    all[select.value] = textarea.value;
+    localStorage.setItem("modelAnswers", JSON.stringify(all));
+    alert("保存しました");
+  });
+
+  loadAnswer();
+</script>
+
+</body>
+</html>
