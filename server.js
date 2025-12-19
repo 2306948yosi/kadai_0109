@@ -29,7 +29,7 @@ serve(async (req) => {
       status,
       date,
       memo,
-      time: new Date().toISOString()
+      savedAt: new Date().toISOString(),
     });
 
     writeJSON(COMPANY_DB, data);
@@ -41,5 +41,15 @@ serve(async (req) => {
     return Response.json(data);
   }
 
-  return new Response("Not Found", { status: 404 });
+  let path = url.pathname;
+  if (path === "/") path = "/kadai.html";
+
+  try {
+    const file = await Deno.readTextFile(`./public${path}`);
+    return new Response(file, {
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+    });
+  } catch {
+    return new Response("Not Found", { status: 404 });
+  }
 });
