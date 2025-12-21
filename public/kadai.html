@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>企業情報入力</title>
+  <link rel="stylesheet" href="kadai.css">
   <style>
     body {
       font-family: sans-serif;
@@ -51,10 +52,16 @@
     <label>メモ</label>
     <textarea id="memo" rows="4"></textarea>
 
-    <button type="submit">登録</button>
+    <button id="save">登録</button>
   </form>
 
-  <button id="practice-btn" type="button">面接練習ページへ</button>
+  <hr>
+  <h2>間近な企業一覧</h2>
+  <div id="list"></div>
+
+    <button onclick="location.href='mennsetu.html'">
+  面接練習
+</button>
 
   <button onclick="location.href='mohan.html'">
   ES内容
@@ -64,9 +71,71 @@
   企業履歴
 </button>
 
-
 <script>
 const form = document.getElementById("entryForm");
+const list = document.getElementById("list");
+
+function daysLeft(dateStr) {
+  const today = new Date();
+  const target = new Date(dateStr);
+  return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+}
+
+function getNearestSchedule(items) {
+  const future = items
+    .filter(i => i.date && daysLeft(i.date) >= 0)
+    .sort((a, b) => daysLeft(a.date) - daysLeft(b.date));
+  return future[0] ?? null;
+}
+
+function getColor(days) {
+  if (days <= 0) return "red";
+  if (days <= 3) return "orange";
+  if (days <= 7) return "yellow";
+  return "green";
+}
+
+async function loadCompanies() {
+  const res = await fetch("/api/company");
+  const data = await res.json();
+  list.innerHTML = "";
+
+  for (const company in data) {
+    const nearest = getNearestSchedule(data[company]);
+    let text = "予定なし";
+    let color = "";
+
+    if (nearest) {
+      const d = daysLeft(nearest.date);
+      color = getColor(d);
+      text = `${nearest.status}：${nearest.date}（残り${d}日）`;
+    }
+
+    const div = document.createElement("div");
+    div.className = `company ${color}`;
+    div.innerHTML = `<b>${company}</b><br>${text}`;
+    list.appendChild(div);
+  }
+}
+
+document.getElementById("save").addEventListener("click", async () => {
+  await fetch("/api/company", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      company: company.value,
+      status: status.value,
+      date: date.value,
+      memo: memo.value
+    })
+  });
+
+  company.value = "";
+  memo.value = "";
+  await loadCompanies();
+});
+
+loadCompanies();
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -85,4 +154,5 @@ form.addEventListener("submit", async (e) => {
   alert("保存しました");
   form.reset();
 });
+
 </script>

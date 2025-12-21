@@ -2,96 +2,131 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>模範回答の編集</title>
+  <title>ES管理</title>
   <style>
-    body {
-      font-family: sans-serif;
-      max-width: 700px;
-      margin: 30px auto;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 20px;
-    }
-    select, textarea, button {
-      width: 100%;
-      margin-top: 5px;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-    textarea {
-      height: 160px;
-    }
-    .count {
-      text-align: right;
-      color: #555;
-      margin-top: 5px;
-    }
+    body { max-width: 800px; margin: 30px auto; font-family: sans-serif; }
+    textarea, input, button { width: 100%; margin-top: 10px; }
+    textarea { height: 150px; }
+    .entry { background: #f5f5f5; padding: 15px; margin-top: 15px; }
+    .count { text-align: right; color: #666; }
   </style>
 </head>
-
 <body>
 
-<h1>模範回答 編集</h1>
+<h1>ES管理</h1>
 
-<label>質問を選択</label>
-<select id="question-select"></select>
+<input id="title" placeholder="タイトル">
+<textarea id="text"></textarea>
+<div class="count" id="count">0文字</div>
 
-<label>模範回答</label>
-<textarea id="model-answer"></textarea>
-<div class="count">文字数：<span id="count">0</span></div>
+<button id="save">保存</button>
+<button id="update" style="display:none;">更新</button>
 
-<button id="save-btn">保存</button>
+<hr>
+<h2>これまでのES</h2>
+<div id="list"></div>
 
 <script>
-  const questions = [
-    "自己紹介をお願いします。",
-    "学生時代に力を入れたことは？",
-    "あなたの強み・弱みは？",
-    "この業界を選んだ理由は？",
-    "弊社の志望動機を教えてください。",
-    "挫折経験と学んだことは？",
-    "5年後、10年後のキャリアプランは？",
-    "入社後、どのようなことをしたいですか"
-  ];
+const titleInput = document.getElementById("title");
+const textInput = document.getElementById("text");
+const count = document.getElementById("count");
+const list = document.getElementById("list");
+const saveBtn = document.getElementById("save");
+const updateBtn = document.getElementById("update");
 
-  const select = document.getElementById("question-select");
-  const textarea = document.getElementById("model-answer");
-  const count = document.getElementById("count");
+let editTitle = null;
+let editIndex = null;
 
-  // 質問を select に追加
-  questions.forEach(q => {
-    const option = document.createElement("option");
-    option.value = q;
-    option.textContent = q;
-    select.appendChild(option);
+textInput.addEventListener("input", () => {
+  count.innerText = textInput.value.length + "文字";
+});
+
+// 保存（新規）
+saveBtn.onclick = async () => {
+  await fetch("/api/es", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: titleInput.value,
+      text: textInput.value
+    })
   });
 
-  // 既存の模範回答を読み込む
-  function loadAnswer() {
-    const all = JSON.parse(localStorage.getItem("modelAnswers") || "{}");
-    textarea.value = all[select.value] || "";
-    count.textContent = textarea.value.length;
+  resetForm();
+  loadES();
+};
+
+// 更新
+updateBtn.onclick = async () => {
+  await fetch("/api/es/update", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: editTitle,
+      index: editIndex,
+      text: textInput.value
+    })
+  });
+
+  resetForm();
+  loadES();
+};
+
+function resetForm() {
+  titleInput.value = "";
+  textInput.value = "";
+  count.innerText = "0文字";
+  saveBtn.style.display = "block";
+  updateBtn.style.display = "none";
+}
+
+async function loadES() {
+  const res = await fetch("/api/es");
+  const data = await res.json();
+  list.innerHTML = "";
+
+  for (const title in data) {
+    data[title].forEach((item, index) => {
+      const div = document.createElement("div");
+      div.className = "entry";
+      div.innerHTML = `
+        <b>${title}</b>
+        <p>${item.text}</p>
+        <div class="count">${item.count}文字</div>
+        <button onclick="editES('${title}', ${index})">編集</button>
+        <button onclick="deleteES('${title}', ${index})">削除</button>
+      `;
+      list.appendChild(div);
+    });
   }
+}
 
-  // 文字数カウント
-  textarea.addEventListener("input", () => {
-    count.textContent = textarea.value.length;
+window.editES = (title, index) => {
+  fetch("/api/es")
+    .then(res => res.json())
+    .then(data => {
+      titleInput.value = title;
+      textInput.value = data[title][index].text;
+      count.innerText = data[title][index].count + "文字";
+
+      editTitle = title;
+      editIndex = index;
+
+      saveBtn.style.display = "none";
+      updateBtn.style.display = "block";
+    });
+};
+
+window.deleteES = async (title, index) => {
+  await fetch("/api/es/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, index })
   });
+  loadES();
+};
 
-  // 質問変更時
-  select.addEventListener("change", loadAnswer);
-
-  // 保存
-  document.getElementById("save-btn").addEventListener("click", () => {
-    const all = JSON.parse(localStorage.getItem("modelAnswers") || "{}");
-    all[select.value] = textarea.value;
-    localStorage.setItem("modelAnswers", JSON.stringify(all));
-    alert("保存しました");
-  });
-
-  loadAnswer();
+loadES();
 </script>
 
 </body>

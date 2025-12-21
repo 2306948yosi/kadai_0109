@@ -1,0 +1,37 @@
+body {
+  font-family: sans-serif;
+  max-width: 700px;
+  margin: 30px auto;
+}
+
+input, select, textarea, button {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+}
+
+.company {
+  padding: 12px;
+  margin-bottom: 10px;
+  border-left: 6px solid #999;
+}
+
+.red {
+  background: #ffd6d6;
+  border-color: #e60000;
+}
+
+.orange {
+  background: #ffe5cc;
+  border-color: #ff8800;
+}
+
+.yellow {
+  background: #fff5cc;
+  border-color: #e6b800;
+}
+
+.green {
+  background: #e0ffe0;
+  border-color: #2ecc71;
+}
